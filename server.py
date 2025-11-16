@@ -14,7 +14,7 @@ games = {}  # game_code: { 'type': 'tic-tac-toe', 'state': {...} }
 def generate_code(length=6):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
-@app.route('/create_game', methods=['POST'])
+@app.route('/api/create_game', methods=['POST'])
 def create_game_endpoint():
     try:
         code = generate_code()
