@@ -1,13 +1,17 @@
 import React from 'react';
 
 const Chat = ({ messages, newMessage, onMessageChange, onSendMessage, player }) => {
+  const handleInputChange = (e) => {
+    const value = e.target.value.slice(0, 50); // Limit to 50 characters
+    onMessageChange({ target: { value } });
+  };
+
   return (
     <div className="chat-container">
       <h3 style={{margin: '0 0 15px 0', color: '#FFFFFF'}}>Chat</h3>
       <div className="chat-messages">
         {messages.map((msg, index) => (
           <div key={index} className={`chat-message ${msg.player === player ? 'own-message' : 'other-message'}`}>
-            <span className="message-sender">{msg.player}</span>
             <span className="message-text">{msg.message}</span>
           </div>
         ))}
@@ -21,12 +25,13 @@ const Chat = ({ messages, newMessage, onMessageChange, onSendMessage, player }) 
         <input
           type="text"
           value={newMessage}
-          onChange={onMessageChange}
-          onKeyPress={e => e.key === 'Enter' && onSendMessage()}
-          placeholder="Type a message..."
+          onChange={handleInputChange}
+          onKeyPress={e => e.key === 'Enter' && newMessage.trim() && onSendMessage()}
+          placeholder={`Type a message... (${newMessage.length}/50)`}
           className="chat-input"
+          maxLength={50}
         />
-        <button onClick={onSendMessage} className="send-btn">Send</button>
+        <button onClick={onSendMessage} className="send-btn" disabled={!newMessage.trim()}>Send</button>
       </div>
     </div>
   );

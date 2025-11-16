@@ -204,14 +204,14 @@ function App() {
   };
 
   const sendMessage = async () => {
-    if (newMessage.trim()) {
+    if (newMessage.trim() && newMessage.length <= 50) {
       try {
         const res = await fetch('https://khelona-backend.vercel.app/send_message', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ code, player, message: newMessage })
+          body: JSON.stringify({ code, player, message: newMessage.trim() })
         });
         if (res.ok) {
           setNewMessage('');
