@@ -3,7 +3,7 @@ import './App.css';
 import GameCard from './components/GameCard';
 import TicTacToeBoard from './components/TicTacToeBoard';
 import GameResult from './components/GameResult';
-import Chat from './components/Chat';
+// import Chat from './components/Chat';
 import CodeInput from './components/CodeInput';
 
 function App() {
@@ -20,8 +20,8 @@ function App() {
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(null);
   const [winningLine, setWinningLine] = useState([]);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
+  // const [chatMessages, setChatMessages] = useState([]);
+  // const [newMessage, setNewMessage] = useState('');
   const [codeDigits, setCodeDigits] = useState(['', '', '', '', '', '']);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
   const [lastGameStateHash, setLastGameStateHash] = useState('');
@@ -72,15 +72,15 @@ function App() {
             }
             
             // Only fetch messages when game state changes or it's my turn
-            if (step === 'game' && (turn === myIndex || state.turn === myIndex)) {
-              const messagesRes = await fetch(`https://khelona-backend.vercel.app/get_messages/${code}`);
-              if (messagesRes.ok) {
-                const messagesData = await messagesRes.json();
-                if (messagesData.messages) {
-                  setChatMessages(messagesData.messages);
-                }
-              }
-            }
+            // if (step === 'game' && (turn === myIndex || state.turn === myIndex)) {
+            //   const messagesRes = await fetch(`https://khelona-backend.vercel.app/get_messages/${code}`);
+            //   if (messagesRes.ok) {
+            //     const messagesData = await messagesRes.json();
+            //     if (messagesData.messages) {
+            //       setChatMessages(messagesData.messages);
+            //     }
+            //   }
+            // }
           } else {
             // Implement exponential backoff when no changes occur
             const newConsecutiveNoChanges = consecutiveNoChanges + 1;
@@ -203,38 +203,38 @@ function App() {
     setTimeout(() => setShowCopyNotification(false), 2000);
   };
 
-  const sendMessage = async () => {
-    if (newMessage.trim() && newMessage.length <= 50) {
-      try {
-        const res = await fetch('https://khelona-backend.vercel.app/send_message', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ code, player, message: newMessage.trim() })
-        });
-        if (res.ok) {
-          setNewMessage('');
-          // Force immediate message fetch after sending a message
-          setTimeout(async () => {
-            try {
-              const messagesRes = await fetch(`https://khelona-backend.vercel.app/get_messages/${code}`);
-              if (messagesRes.ok) {
-                const messagesData = await messagesRes.json();
-                if (messagesData.messages) {
-                  setChatMessages(messagesData.messages);
-                }
-              }
-            } catch (error) {
-              console.error('Error fetching messages after send:', error);
-            }
-          }, 100);
-        }
-      } catch (error) {
-        console.error('Error sending message:', error);
-      }
-    }
-  };
+  // const sendMessage = async () => {
+  //   if (newMessage.trim() && newMessage.length <= 50) {
+  //     try {
+  //       const res = await fetch('https://khelona-backend.vercel.app/send_message', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({ code, player, message: newMessage.trim() })
+  //       });
+  //       if (res.ok) {
+  //         setNewMessage('');
+  //         // Force immediate message fetch after sending a message
+  //         setTimeout(async () => {
+  //           try {
+  //             const messagesRes = await fetch(`https://khelona-backend.vercel.app/get_messages/${code}`);
+  //             if (messagesRes.ok) {
+  //               const messagesData = await messagesRes.json();
+  //               if (messagesData.messages) {
+  //                 setChatMessages(messagesData.messages);
+  //               }
+  //             }
+  //           } catch (error) {
+  //             console.error('Error fetching messages after send:', error);
+  //           }
+  //         }, 100);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error sending message:', error);
+  //     }
+  //   }
+  // };
 
   const handleCodeInput = (index, value) => {
     if (value.length <= 1) {
@@ -282,7 +282,7 @@ function App() {
     setGameOver(false);
     setWinner(null);
     setWinningLine([]);
-    setChatMessages([]);
+    // setChatMessages([]);
     // Reset polling optimization state
     setLastGameStateHash('');
     setPollInterval(1000);
@@ -365,7 +365,7 @@ function App() {
 
       {step === 'game' && (
         <div className="game-screen">
-          <div className="game-main">
+          <div className="game-main" style={{maxWidth: '600px', margin: '0 auto'}}>
             <div className="game-header">
               <h2>Tic Tac Toe</h2>
               <div className="game-info">
@@ -405,7 +405,7 @@ function App() {
             />
           </div>
           
-          <div className="game-side">
+          {/* <div className="game-side">
             <Chat 
               messages={chatMessages}
               newMessage={newMessage}
@@ -413,7 +413,7 @@ function App() {
               onSendMessage={sendMessage}
               player={player}
             />
-          </div>
+          </div> */}
         </div>
       )}
     </div>
