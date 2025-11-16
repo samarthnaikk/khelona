@@ -16,7 +16,7 @@ function App() {
 
   // Connect to backend
   const connectSocket = (gameCode, playerName) => {
-    const s = window.io('http://localhost:5000');
+    const s = window.io('http://localhost:5001');
     setSocket(s);
     s.emit('join_game', { code: gameCode, player: playerName });
     s.on('join_error', data => setMessage(data.error));
@@ -39,7 +39,7 @@ function App() {
 
   const handleCreate = async () => {
     if (!player) return setMessage('Enter your name');
-    const res = await fetch('/create_game', { method: 'POST' });
+    const res = await fetch('http://localhost:5001/create_game', { method: 'POST' });
     const data = await res.json();
     setCode(data.code);
     connectSocket(data.code, player);
