@@ -5,7 +5,8 @@
       "src": "server.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb"
+        "maxLambdaSize": "15mb",
+        "includeFiles": "games/**"
       }
     },
     {
@@ -26,11 +27,6 @@
       "dest": "/client/build/$1"
     }
   ],
-  "functions": {
-    "server.py": {
-      "includeFiles": "games/**"
-    }
-  },
   "env": {
     "PYTHON_VERSION": "3.9"
   }
