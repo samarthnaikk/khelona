@@ -46,6 +46,15 @@ function App() {
           }
         }
       }
+      
+      // Also poll for chat messages
+      const messagesRes = await fetch(`/api/get_messages/${code}`);
+      if (messagesRes.ok) {
+        const messagesData = await messagesRes.json();
+        if (messagesData.messages) {
+          setChatMessages(messagesData.messages);
+        }
+      }
     } catch (error) {
       console.error('Error polling game state:', error);
     }
