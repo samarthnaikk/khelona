@@ -12,7 +12,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", path='/api/socket.io', logger
 games = {}  # game_code: { 'type': 'tic-tac-toe', 'state': {...} }
 
 # Test route
-@app.route('/api/test', methods=['GET'])
+@app.route('/test', methods=['GET'])
 def test():
     try:
         # Test if games module is working
@@ -33,7 +33,7 @@ def test():
 def generate_code(length=6):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
-@app.route('/api/create_game', methods=['POST'])
+@app.route('/create_game', methods=['POST'])
 def create_game_endpoint():
     try:
         print("Creating game...")
@@ -130,7 +130,7 @@ def on_chat_message(data):
         }, room=code)
 
 # HTTP-based endpoints for Vercel compatibility
-@app.route('/api/join_game', methods=['POST'])
+@app.route('/join_game', methods=['POST'])
 def join_game_http():
     try:
         data = request.get_json()
@@ -151,13 +151,13 @@ def join_game_http():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/game_state/<code>', methods=['GET'])
+@app.route('/game_state/<code>', methods=['GET'])
 def get_game_state(code):
     if code in games:
         return jsonify({'state': games[code]['state']})
     return jsonify({'error': 'Game not found'}), 404
 
-@app.route('/api/make_move', methods=['POST'])
+@app.route('/make_move', methods=['POST'])
 def make_move_http():
     try:
         data = request.get_json()
@@ -191,7 +191,7 @@ def make_move_http():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/send_message', methods=['POST'])
+@app.route('/send_message', methods=['POST'])
 def send_message_http():
     try:
         data = request.get_json()
@@ -219,7 +219,7 @@ def send_message_http():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/get_messages/<code>', methods=['GET'])
+@app.route('/get_messages/<code>', methods=['GET'])
 def get_messages(code):
     if code in games:
         messages = games[code]['state'].get('messages', [])
