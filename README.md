@@ -2,6 +2,8 @@
 
 A 2-player Tic Tac Toe web game. Players can create a game, share a code, and play in real-time.
 
+**Play the game**: [https://khelona.samarthnaikk.me](https://khelona.samarthnaikk.me)
+
 ## Features
 - Create and join games with a code
 - Real-time gameplay using Flask-SocketIO

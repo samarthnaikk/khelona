@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import GameCard from './components/GameCard';
 import TicTacToeBoard from './components/TicTacToeBoard';
@@ -24,10 +24,9 @@ function App() {
   const [newMessage, setNewMessage] = useState('');
   const [codeDigits, setCodeDigits] = useState(['', '', '', '', '', '']);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
-  const [gameState, setGameState] = useState(null);
 
   // Polling function to check game state
-  const pollGameState = async () => {
+  const pollGameState = useCallback(async () => {
     if (!code) return;
     try {
       const res = await fetch(`/api/game_state/${code}`);
@@ -50,7 +49,7 @@ function App() {
     } catch (error) {
       console.error('Error polling game state:', error);
     }
-  };
+  }, [code, step]);
 
   // Poll every 1 second when in game
   useEffect(() => {
@@ -61,7 +60,7 @@ function App() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [step, code]);
+  }, [step, code, pollGameState]);
 
   const handleGameSelect = (gameName) => {
     setSelectedGame(gameName);
