@@ -26,7 +26,6 @@ def home():
             'error': str(e)
         })
 
-
 @app.route('/test', methods=['GET'])
 def test():
     try:
