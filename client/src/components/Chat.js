@@ -7,7 +7,7 @@ const Chat = ({ messages, newMessage, onMessageChange, onSendMessage, player }) 
       <div className="chat-messages">
         {messages.map((msg, index) => (
           <div key={index} className={`chat-message ${msg.player === player ? 'own-message' : 'other-message'}`}>
-            <span className="message-sender">{msg.player}:</span>
+            <span className="message-sender">{msg.player}</span>
             <span className="message-text">{msg.message}</span>
           </div>
         ))}

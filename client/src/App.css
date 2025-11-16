@@ -582,6 +582,7 @@
   padding: 8px 12px;
   border-radius: 12px;
   max-width: 80%;
+  position: relative;
 }
 
 .own-message {
@@ -600,11 +601,23 @@
 
 .message-sender {
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  position: absolute;
+  top: -18px;
+  color: #B0C9E8;
 }
 
 .message-text {
-  margin-left: 5px;
+  display: block;
+  margin: 0;
+}
+
+.own-message .message-sender {
+  right: 0;
+}
+
+.other-message .message-sender {
+  left: 0;
 }
 
 .chat-input-container {
