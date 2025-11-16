@@ -163,7 +163,10 @@ function App() {
           <h2>Choose a Game</h2>
           <div className="games-grid">
             <div className="game-card" onClick={() => handleGameSelect('tic-tac-toe')}>
-              <div className="game-icon">TicTacToe</div>
+              <div className="game-icon">
+                <span style={{color: '#FF4C4C'}}>X</span>
+                <span style={{color: '#4FC3F7'}}>O</span>
+              </div>
               <h3>Tic Tac Toe</h3>
               <p>Classic 3x3 grid game</p>
             </div>
