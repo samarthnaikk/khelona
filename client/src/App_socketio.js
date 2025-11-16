@@ -66,6 +66,7 @@ function App() {
 
   const handleCreateGame = async () => {
     if (!player) return setMessage('Enter your name');
+    if (player.length > 10) return setMessage('Name should not be more than 10 characters');
     try {
       const res = await fetch('https://khelona-backend.vercel.app/create_game', { 
         method: 'POST',
@@ -92,6 +93,7 @@ function App() {
 
   const handleJoinGame = () => {
     if (!player || !inputCode) return setMessage('Enter name and code');
+    if (player.length > 10) return setMessage('Name should not be more than 10 characters');
     setCode(inputCode);
     connectSocket(inputCode, player);
     setStep('waiting');
@@ -179,10 +181,11 @@ function App() {
           <h2>{selectedGame === 'tic-tac-toe' ? 'Tic Tac Toe' : selectedGame}</h2>
           <div className="name-input-section">
             <input 
-              placeholder="Enter your name" 
+              placeholder="Enter your name (max 10 chars)" 
               value={player} 
-              onChange={e => setPlayer(e.target.value)}
+              onChange={e => setPlayer(e.target.value.slice(0, 10))}
               className="name-input"
+              maxLength={10}
             />
             <button onClick={handleCreateGame} className="create-btn">Create Game</button>
           </div>
