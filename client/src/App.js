@@ -96,7 +96,7 @@ function App() {
     } catch (error) {
       console.error('Error polling game state:', error);
     }
-  }, [code, step, lastGameStateHash, pollInterval, consecutiveNoChanges, turn, myIndex]);
+  }, [code, step, lastGameStateHash, pollInterval, consecutiveNoChanges]);
 
   // Adaptive polling with dynamic intervals
   useEffect(() => {
