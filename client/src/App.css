@@ -28,25 +28,271 @@
   color: #61dafb;
 }
 
-.board {
-  display: grid;
-  grid-template-columns: repeat(3, 60px);
-  grid-gap: 5px;
-  margin: 20px auto;
-  width: 200px;
+/* Home Screen Styles */
+.home-screen {
+  padding: 40px 20px;
 }
-.cell {
-  width: 60px;
-  height: 60px;
-  font-size: 2rem;
+
+.games-grid {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.game-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  padding: 30px;
   text-align: center;
   cursor: pointer;
-  background: #f0f0f0;
-  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  min-width: 200px;
 }
+
+.game-card:hover {
+  border-color: #61dafb;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+.game-icon {
+  font-size: 4rem;
+  margin-bottom: 15px;
+}
+
+.game-card h3 {
+  margin: 10px 0;
+  color: #333;
+}
+
+.game-card p {
+  color: #666;
+  margin: 0;
+}
+
+/* Enter Name Screen */
+.enter-name-screen {
+  padding: 40px 20px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #61dafb;
+  margin-bottom: 20px;
+}
+
+.name-input-section, .join-section {
+  margin: 20px 0;
+}
+
+.name-input, .code-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.create-btn, .join-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-btn {
+  background: #4CAF50;
+  color: white;
+}
+
+.create-btn:hover {
+  background: #45a049;
+}
+
+.join-btn {
+  background: #2196F3;
+  color: white;
+}
+
+.join-btn:hover {
+  background: #1976D2;
+}
+
+.divider {
+  text-align: center;
+  margin: 30px 0;
+  color: #999;
+  font-weight: bold;
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+  margin-top: 15px;
+}
+
+/* Waiting Screen */
+.waiting-screen {
+  padding: 40px 20px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.game-code-display {
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  margin: 30px 0;
+}
+
+.code {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #2196F3;
+  letter-spacing: 5px;
+  margin: 15px 0;
+  font-family: monospace;
+}
+
+.players-list {
+  margin: 30px 0;
+}
+
+.player-item {
+  background: white;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+}
+
+.waiting-indicator {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2196F3;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Game Screen */
+.game-screen {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.game-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.game-info {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 10px;
+}
+
+.players-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.player {
+  padding: 15px 25px;
+  background: #f0f0f0;
+  border-radius: 25px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.player.active {
+  background: #4CAF50;
+  color: white;
+  transform: scale(1.1);
+}
+
+.vs {
+  font-weight: bold;
+  color: #666;
+}
+
+.current-turn {
+  text-align: center;
+  font-size: 1.2rem;
+  margin: 20px 0;
+  font-weight: bold;
+  color: #2196F3;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 80px);
+  grid-gap: 10px;
+  margin: 30px auto;
+  width: 260px;
+}
+
+.cell {
+  width: 80px;
+  height: 80px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  cursor: pointer;
+  background: white;
+  border: 3px solid #e0e0e0;
+  border-radius: 15px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell.clickable:hover {
+  border-color: #2196F3;
+  background: #f0f8ff;
+  transform: scale(1.05);
+}
+
+.cell.filled {
+  background: #f8f9fa;
+}
+
 .cell:disabled {
-  background: #ddd;
   cursor: not-allowed;
+}
+
+.cell:disabled:not(.filled) {
+  opacity: 0.5;
 }
 
 @keyframes App-logo-spin {

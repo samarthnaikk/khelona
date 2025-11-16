@@ -1,9 +1,11 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_cors import CORS
 import random
 import string
 
 app = Flask(__name__)
+CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 games = {}  # game_code: { 'players': [], 'board': [...], 'turn': 0 }
@@ -14,11 +16,16 @@ def generate_code(length=6):
 
 @app.route('/create_game', methods=['POST'])
 def create_game():
-    code = generate_code()
-    while code in games:
+    try:
         code = generate_code()
-    games[code] = {'players': [], 'board': ['']*9, 'turn': 0}
-    return {'code': code}
+        while code in games:
+            code = generate_code()
+        games[code] = {'players': [], 'board': ['']*9, 'turn': 0}
+        print(f"Created game with code: {code}")
+        return jsonify({'code': code})
+    except Exception as e:
+        print(f"Error creating game: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @socketio.on('join_game')
 def on_join_game(data):
