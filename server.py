@@ -7,9 +7,14 @@ from games import create_game, handle_game_move
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
 
 games = {}  # game_code: { 'type': 'tic-tac-toe', 'state': {...} }
+
+# Test route
+@app.route('/api/test', methods=['GET'])
+def test():
+    return jsonify({'message': 'API is working!', 'status': 'success'})
 
 def generate_code(length=6):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -99,6 +104,10 @@ def on_chat_message(data):
             'message': message,
             'timestamp': __import__('datetime').datetime.now().strftime('%H:%M')
         }, room=code)
+
+# For Vercel deployment
+def handler(request):
+    return app(request.environ, request.start_response)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5001)

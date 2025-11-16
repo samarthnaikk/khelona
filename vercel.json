@@ -2,12 +2,8 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "15mb",
-        "includeFiles": "games/**"
-      }
+      "src": "api/index.py",
+      "use": "@vercel/python"
     },
     {
       "src": "client/package.json",
@@ -20,14 +16,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server.py"
+      "dest": "/api/index.py"
     },
     {
       "src": "/(.*)",
       "dest": "/client/$1"
     }
-  ],
-  "env": {
-    "PYTHON_VERSION": "3.9"
-  }
+  ]
 }
