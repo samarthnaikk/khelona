@@ -24,8 +24,23 @@ function App() {
   const [newMessage, setNewMessage] = useState('');
   const [codeDigits, setCodeDigits] = useState(['', '', '', '', '', '']);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
+  const [lastGameStateHash, setLastGameStateHash] = useState('');
+  const [pollInterval, setPollInterval] = useState(1000);
+  const [consecutiveNoChanges, setConsecutiveNoChanges] = useState(0);
 
-  // Polling function to check game state
+  // Helper function to create a hash of game state for comparison
+  const createGameStateHash = (state) => {
+    return JSON.stringify({
+      players: state.players,
+      board: state.board,
+      turn: state.turn,
+      game_over: state.game_over,
+      winner: state.winner,
+      winning_line: state.winning_line
+    });
+  };
+
+  // Optimized polling function to check game state
   const pollGameState = useCallback(async () => {
     if (!code) return;
     try {
@@ -34,42 +49,65 @@ function App() {
         const data = await res.json();
         if (data.state) {
           const state = data.state;
-          setPlayers(state.players);
-          setBoard(state.board);
-          setTurn(state.turn);
-          setGameOver(state.game_over);
-          setWinner(state.winner);
-          setWinningLine(state.winning_line || []);
+          const currentHash = createGameStateHash(state);
           
-          if (state.players.length === 2 && step === 'waiting') {
-            setStep('game');
+          // Only update state and fetch messages if game state actually changed
+          if (currentHash !== lastGameStateHash) {
+            setPlayers(state.players);
+            setBoard(state.board);
+            setTurn(state.turn);
+            setGameOver(state.game_over);
+            setWinner(state.winner);
+            setWinningLine(state.winning_line || []);
+            setLastGameStateHash(currentHash);
+            setConsecutiveNoChanges(0);
+            
+            // Reset to fast polling when changes occur
+            if (pollInterval > 1000) {
+              setPollInterval(1000);
+            }
+            
+            if (state.players.length === 2 && step === 'waiting') {
+              setStep('game');
+            }
+            
+            // Only fetch messages when game state changes or it's my turn
+            if (step === 'game' && (turn === myIndex || state.turn === myIndex)) {
+              const messagesRes = await fetch(`https://khelona-backend.vercel.app/get_messages/${code}`);
+              if (messagesRes.ok) {
+                const messagesData = await messagesRes.json();
+                if (messagesData.messages) {
+                  setChatMessages(messagesData.messages);
+                }
+              }
+            }
+          } else {
+            // Implement exponential backoff when no changes occur
+            const newConsecutiveNoChanges = consecutiveNoChanges + 1;
+            setConsecutiveNoChanges(newConsecutiveNoChanges);
+            
+            // Gradually increase polling interval up to 3 seconds
+            if (newConsecutiveNoChanges > 3 && pollInterval < 3000) {
+              setPollInterval(Math.min(pollInterval * 1.5, 3000));
+            }
           }
-        }
-      }
-      
-      // Also poll for chat messages
-      const messagesRes = await fetch(`https://khelona-backend.vercel.app/get_messages/${code}`);
-      if (messagesRes.ok) {
-        const messagesData = await messagesRes.json();
-        if (messagesData.messages) {
-          setChatMessages(messagesData.messages);
         }
       }
     } catch (error) {
       console.error('Error polling game state:', error);
     }
-  }, [code, step]);
+  }, [code, step, lastGameStateHash, pollInterval, consecutiveNoChanges, turn, myIndex]);
 
-  // Poll every 1 second when in game
+  // Adaptive polling with dynamic intervals
   useEffect(() => {
     let interval;
     if ((step === 'waiting' || step === 'game') && code) {
-      interval = setInterval(pollGameState, 1000);
+      interval = setInterval(pollGameState, pollInterval);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [step, code, pollGameState]);
+  }, [step, code, pollGameState, pollInterval]);
 
   const handleGameSelect = (gameName) => {
     setSelectedGame(gameName);
@@ -149,7 +187,9 @@ function App() {
         body: JSON.stringify({ code, index: idx, player })
       });
       if (res.ok) {
-        // Game state will be updated by polling
+        // Force immediate poll after making a move and reset polling interval
+        setPollInterval(1000);
+        setConsecutiveNoChanges(0);
         pollGameState();
       }
     } catch (error) {
@@ -175,7 +215,20 @@ function App() {
         });
         if (res.ok) {
           setNewMessage('');
-          // In a real implementation, you'd poll for messages too
+          // Force immediate message fetch after sending a message
+          setTimeout(async () => {
+            try {
+              const messagesRes = await fetch(`https://khelona-backend.vercel.app/get_messages/${code}`);
+              if (messagesRes.ok) {
+                const messagesData = await messagesRes.json();
+                if (messagesData.messages) {
+                  setChatMessages(messagesData.messages);
+                }
+              }
+            } catch (error) {
+              console.error('Error fetching messages after send:', error);
+            }
+          }, 100);
         }
       } catch (error) {
         console.error('Error sending message:', error);
@@ -230,6 +283,10 @@ function App() {
     setWinner(null);
     setWinningLine([]);
     setChatMessages([]);
+    // Reset polling optimization state
+    setLastGameStateHash('');
+    setPollInterval(1000);
+    setConsecutiveNoChanges(0);
   };
 
   return (
