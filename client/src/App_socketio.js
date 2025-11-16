@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import './App.css';
+import io from 'socket.io-client';
 import GameCard from './components/GameCard';
 import TicTacToeBoard from './components/TicTacToeBoard';
 import GameResult from './components/GameResult';
@@ -12,6 +14,7 @@ function App() {
   const [code, setCode] = useState('');
   const [player, setPlayer] = useState('');
   const [inputCode, setInputCode] = useState('');
+  const [socket, setSocket] = useState(null);
   const [players, setPlayers] = useState([]);
   const [board, setBoard] = useState(Array(9).fill(''));
   const [turn, setTurn] = useState(0);
@@ -24,44 +27,37 @@ function App() {
   const [newMessage, setNewMessage] = useState('');
   const [codeDigits, setCodeDigits] = useState(['', '', '', '', '', '']);
   const [showCopyNotification, setShowCopyNotification] = useState(false);
-  const [gameState, setGameState] = useState(null);
 
-  // Polling function to check game state
-  const pollGameState = async () => {
-    if (!code) return;
-    try {
-      const res = await fetch(`/api/game_state/${code}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.state) {
-          const state = data.state;
-          setPlayers(state.players);
-          setBoard(state.board);
-          setTurn(state.turn);
-          setGameOver(state.game_over);
-          setWinner(state.winner);
-          setWinningLine(state.winning_line || []);
-          
-          if (state.players.length === 2 && step === 'waiting') {
-            setStep('game');
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error polling game state:', error);
-    }
+  // Connect to backend
+  const connectSocket = (gameCode, playerName) => {
+    const s = io({ path: '/api/socket.io' });
+    setSocket(s);
+    s.emit('join_game', { code: gameCode, player: playerName });
+    s.on('join_error', data => setMessage(data.error));
+    s.on('player_joined', data => {
+      setPlayers(data.players);
+      setMyIndex(data.players.indexOf(playerName));
+    });
+    s.on('start_game', data => {
+      setBoard(data.board);
+      setTurn(data.turn);
+      setGameOver(data.game_over || false);
+      setWinner(data.winner || null);
+      setStep('game');
+      setMessage('');
+    });
+    s.on('update_board', data => {
+      setBoard([...data.board]);
+      setTurn(data.turn);
+      setGameOver(data.game_over || false);
+      setWinner(data.winner || null);
+      setWinningLine(data.winning_line || []);
+    });
+    s.on('chat_message', data => {
+      setChatMessages(prev => [...prev, data]);
+    });
+    return s;
   };
-
-  // Poll every 1 second when in game
-  useEffect(() => {
-    let interval;
-    if ((step === 'waiting' || step === 'game') && code) {
-      interval = setInterval(pollGameState, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [step, code]);
 
   const handleGameSelect = (gameName) => {
     setSelectedGame(gameName);
@@ -86,9 +82,7 @@ function App() {
         return;
       }
       setCode(data.code);
-      
-      // Join the game
-      await joinGameRequest(data.code, player);
+      connectSocket(data.code, player);
       setStep('waiting');
     } catch (error) {
       console.error('Error creating game:', error);
@@ -96,55 +90,23 @@ function App() {
     }
   };
 
-  const joinGameRequest = async (gameCode, playerName) => {
-    try {
-      const res = await fetch('/api/join_game', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code: gameCode, player: playerName })
-      });
-      const data = await res.json();
-      if (data.error) {
-        setMessage(data.error);
-        return false;
-      }
-      setMyIndex(data.player_index);
-      return true;
-    } catch (error) {
-      console.error('Error joining game:', error);
-      setMessage('Failed to join game.');
-      return false;
-    }
-  };
-
-  const handleJoinGame = async () => {
+  const handleJoinGame = () => {
     if (!player || !inputCode) return setMessage('Enter name and code');
     setCode(inputCode);
-    const success = await joinGameRequest(inputCode, player);
-    if (success) {
-      setStep('waiting');
-    }
+    connectSocket(inputCode, player);
+    setStep('waiting');
   };
 
-  const handleMove = async (idx) => {
-    if (board[idx] || turn !== myIndex || gameOver) return;
-    try {
-      const res = await fetch('/api/make_move', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code, index: idx, player })
-      });
-      if (res.ok) {
-        // Game state will be updated by polling
-        pollGameState();
-      }
-    } catch (error) {
-      console.error('Error making move:', error);
-    }
+  const goBack = () => {
+    setStep('home');
+    setMessage('');
+    setPlayer('');
+    setInputCode('');
+  };
+
+  const handleMove = idx => {
+    if (board[idx] || turn !== myIndex) return;
+    socket.emit('make_move', { code, index: idx, player });
   };
 
   const copyCode = () => {
@@ -153,23 +115,10 @@ function App() {
     setTimeout(() => setShowCopyNotification(false), 2000);
   };
 
-  const sendMessage = async () => {
-    if (newMessage.trim()) {
-      try {
-        const res = await fetch('/api/send_message', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ code, player, message: newMessage })
-        });
-        if (res.ok) {
-          setNewMessage('');
-          // In a real implementation, you'd poll for messages too
-        }
-      } catch (error) {
-        console.error('Error sending message:', error);
-      }
+  const sendMessage = () => {
+    if (newMessage.trim() && socket) {
+      socket.emit('chat_message', { code, player, message: newMessage });
+      setNewMessage('');
     }
   };
 
@@ -210,18 +159,6 @@ function App() {
     }
   };
 
-  const goBack = () => {
-    setStep('home');
-    setMessage('');
-    setPlayer('');
-    setInputCode('');
-    setCode('');
-    setGameOver(false);
-    setWinner(null);
-    setWinningLine([]);
-    setChatMessages([]);
-  };
-
   return (
     <div className="App">
       <h1>Khelona - 2 Player Games</h1>
@@ -231,6 +168,7 @@ function App() {
           <h2>Choose a Game</h2>
           <div className="games-grid">
             <GameCard gameType="tic-tac-toe" onClick={handleGameSelect} />
+            {/* More games can be added here */}
           </div>
         </div>
       )}
@@ -264,7 +202,7 @@ function App() {
 
       {step === 'waiting' && (
         <div className="waiting-screen">
-          <h2>Tic Tac Toe</h2>
+          <h2>⭕ Tic Tac Toe</h2>
           <div className="game-code-display">
             <h3>Game Code</h3>
             <div className="code-container">
@@ -284,7 +222,7 @@ function App() {
             <h4>Players ({players.length}/2)</h4>
             {players.map((p, i) => (
               <div key={i} className="player-item">
-                {p} {p === player ? '(You)' : ''}
+                {p} {i === 0 ? '(You)' : ''}
               </div>
             ))}
           </div>

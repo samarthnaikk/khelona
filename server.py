@@ -7,7 +7,7 @@ from games import create_game, handle_game_move
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins="*", path='/api/socket.io', logger=True, engineio_logger=True)
 
 games = {}  # game_code: { 'type': 'tic-tac-toe', 'state': {...} }
 
@@ -104,6 +104,68 @@ def on_chat_message(data):
             'message': message,
             'timestamp': __import__('datetime').datetime.now().strftime('%H:%M')
         }, room=code)
+
+# HTTP-based endpoints for Vercel compatibility
+@app.route('/api/join_game', methods=['POST'])
+def join_game_http():
+    try:
+        data = request.get_json()
+        code = data.get('code')
+        player = data.get('player')
+        
+        if code not in games or len(games[code]['state']['players']) >= 2:
+            return jsonify({'error': 'Invalid or full game code'}), 400
+        
+        games[code]['state']['players'].append(player)
+        player_index = len(games[code]['state']['players']) - 1
+        
+        return jsonify({
+            'success': True,
+            'player_index': player_index,
+            'players': games[code]['state']['players']
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/game_state/<code>', methods=['GET'])
+def get_game_state(code):
+    if code in games:
+        return jsonify({'state': games[code]['state']})
+    return jsonify({'error': 'Game not found'}), 404
+
+@app.route('/api/make_move', methods=['POST'])
+def make_move_http():
+    try:
+        data = request.get_json()
+        code = data.get('code')
+        idx = data.get('index')
+        player = data.get('player')
+        
+        if code not in games or idx is None or player not in games[code]['state']['players']:
+            return jsonify({'error': 'Invalid request'}), 400
+        
+        game_info = games[code]
+        game_state = game_info['state']
+        game_type = game_info['type']
+        
+        try:
+            player_index = game_state['players'].index(player)
+        except ValueError:
+            return jsonify({'error': 'Player not found'}), 400
+        
+        if game_state['turn'] != player_index or game_state['game_over']:
+            return jsonify({'error': 'Not your turn'}), 400
+        
+        success, updated_state = handle_game_move(game_type, game_state, player_index, idx)
+        
+        if success:
+            games[code]['state'] = updated_state
+            return jsonify({'success': True, 'state': updated_state})
+        else:
+            return jsonify({'error': 'Invalid move'}), 400
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # For Vercel deployment
 def handler(request):
