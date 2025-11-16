@@ -14,7 +14,21 @@ games = {}  # game_code: { 'type': 'tic-tac-toe', 'state': {...} }
 # Test route
 @app.route('/api/test', methods=['GET'])
 def test():
-    return jsonify({'message': 'API is working!', 'status': 'success'})
+    try:
+        # Test if games module is working
+        test_game = create_game('tic-tac-toe')
+        return jsonify({
+            'message': 'API is working!', 
+            'status': 'success',
+            'games_module': 'working',
+            'test_game_created': bool(test_game)
+        })
+    except Exception as e:
+        return jsonify({
+            'message': 'API working but games module has issues',
+            'status': 'partial',
+            'error': str(e)
+        })
 
 def generate_code(length=6):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -22,19 +36,29 @@ def generate_code(length=6):
 @app.route('/api/create_game', methods=['POST'])
 def create_game_endpoint():
     try:
+        print("Creating game...")
         code = generate_code()
         while code in games:
             code = generate_code()
         
+        print(f"Generated code: {code}")
         # Default to tic-tac-toe for now, can be extended to accept game type
-        game_state = create_game('tic-tac-toe')
+        try:
+            game_state = create_game('tic-tac-toe')
+            print(f"Game state created: {game_state}")
+        except Exception as game_error:
+            print(f"Error creating game state: {game_error}")
+            return jsonify({'error': f'Game creation failed: {str(game_error)}'}), 500
+            
         games[code] = {'type': 'tic-tac-toe', 'state': game_state}
         
         print(f"Created game with code: {code}")
         return jsonify({'code': code})
     except Exception as e:
         print(f"Error creating game: {e}")
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'traceback': traceback.format_exc()}), 500
 
 @socketio.on('join_game')
 def on_join_game(data):

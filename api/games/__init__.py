@@ -1,4 +1,4 @@
-from games.tic_tac_toe import create_tic_tac_toe_game, handle_tic_tac_toe_move
+from .tic_tac_toe import create_tic_tac_toe_game, handle_tic_tac_toe_move
 
 # Game registry - add new games here
 GAME_HANDLERS = {
