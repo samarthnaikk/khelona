@@ -12,6 +12,21 @@ socketio = SocketIO(app, cors_allowed_origins="*", path='/api/socket.io', logger
 games = {}  # game_code: { 'type': 'tic-tac-toe', 'state': {...} }
 
 # Test route
+@app.route('/', methods=['GET'])
+def home():
+    try:
+        return jsonify({
+            'message': 'Backend is running!',
+            'status': 'success'
+        })
+    except Exception as e:
+        return jsonify({
+            'message': 'Backend reachable but error occurred',
+            'status': 'error',
+            'error': str(e)
+        })
+
+
 @app.route('/test', methods=['GET'])
 def test():
     try:
