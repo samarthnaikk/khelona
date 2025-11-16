@@ -156,14 +156,14 @@ function App() {
 
   return (
     <div className="App">
-      <h1>🎮 Khelona - 2 Player Games</h1>
+      <h1>Khelona - 2 Player Games</h1>
       
       {step === 'home' && (
         <div className="home-screen">
           <h2>Choose a Game</h2>
           <div className="games-grid">
             <div className="game-card" onClick={() => handleGameSelect('tic-tac-toe')}>
-              <div className="game-icon">⭕</div>
+              <div className="game-icon">TicTacToe</div>
               <h3>Tic Tac Toe</h3>
               <p>Classic 3x3 grid game</p>
             </div>
@@ -175,7 +175,7 @@ function App() {
       {step === 'enterName' && (
         <div className="enter-name-screen">
           <button className="back-btn" onClick={goBack}>← Back</button>
-          <h2>{selectedGame === 'tic-tac-toe' ? '⭕ Tic Tac Toe' : selectedGame}</h2>
+          <h2>{selectedGame === 'tic-tac-toe' ? 'Tic Tac Toe' : selectedGame}</h2>
           <div className="name-input-section">
             <input 
               placeholder="Enter your name" 
@@ -221,7 +221,7 @@ function App() {
             </div>
             {showCopyNotification && (
               <div className="copy-notification">
-                ✅ Code copied to clipboard!
+                Code copied to clipboard!
               </div>
             )}
             <p>Share this code with your friend to join!</p>
@@ -245,7 +245,7 @@ function App() {
         <div className="game-screen">
           <div className="game-main">
             <div className="game-header">
-              <h2>⭕ Tic Tac Toe</h2>
+              <h2>Tic Tac Toe</h2>
               <div className="game-info">
                 <span>Code: <strong>{code}</strong></span>
                 <span>You are: <strong>{myIndex === 0 ? 'X' : 'O'}</strong></span>
@@ -269,12 +269,12 @@ function App() {
             {gameOver && (
               <div className="game-result">
                 {winner === 'tie' ? (
-                  <div className="tie-message">🤝 It's a Tie!</div>
-                ) : (
-                  <div className="winner-message">
-                    🎉 {winner === 'X' ? players[0] : players[1]} Wins!
-                  </div>
-                )}
+                <div className="tie-message">It's a Tie!</div>
+              ) : (
+                <div className="winner-message">
+                  {winner === 'X' ? players[0] : players[1]} Wins!
+                </div>
+              )}
                 <button className="play-again-btn" onClick={goBack}>
                   Play Again
                 </button>
@@ -297,7 +297,7 @@ function App() {
           
           <div className="game-side">
             <div className="chat-container">
-              <h3 style={{margin: '0 0 15px 0', color: '#2c3e50'}}>💬 Chat</h3>
+              <h3 style={{margin: '0 0 15px 0', color: '#FFFFFF'}}>Chat</h3>
               <div className="chat-messages">
                 {chatMessages.map((msg, index) => (
                   <div key={index} className={`chat-message ${msg.player === player ? 'own-message' : 'other-message'}`}>

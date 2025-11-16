@@ -1,13 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+
 .App {
   text-align: center;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 50%),
-    linear-gradient(135deg, #87CEEB 0%, #B0E0E6 50%, #ADD8E6 100%);
+    radial-gradient(circle at 20% 80%, rgba(30,144,255,0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(79,195,247,0.05) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(30,144,255,0.03) 0%, transparent 50%),
+    #0A2A43;
   background-size: 300px 300px, 400px 300px, 200px 200px, 100% 100%;
   min-height: 100vh;
-  color: #2c3e50;
+  color: #FFFFFF;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
 }
@@ -20,19 +22,22 @@
   right: 0;
   bottom: 0;
   background-image: 
-    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px),
-    repeating-linear-gradient(-45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px);
+    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(30,144,255,0.02) 2px, rgba(30,144,255,0.02) 4px),
+    repeating-linear-gradient(-45deg, transparent, transparent 2px, rgba(79,195,247,0.02) 2px, rgba(79,195,247,0.02) 4px);
   pointer-events: none;
 }
 
 .App h1 {
   margin: 0;
   padding: 30px 0;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(16, 47, 76, 0.8);
   backdrop-filter: blur(10px);
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
   position: relative;
   z-index: 1;
+  font-family: 'Comfortaa', cursive;
+  font-weight: 600;
+  color: #FFFFFF;
 }
 
 .App-logo {
@@ -76,36 +81,39 @@
 }
 
 .game-card {
-  background: linear-gradient(145deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
-  border: none;
+  background: #102F4C;
+  border: 2px solid #4FC3F7;
   border-radius: 20px;
   padding: 40px 30px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
   min-width: 220px;
-  color: #333;
+  color: #FFFFFF;
 }
 
 .game-card:hover {
   transform: translateY(-8px) scale(1.05);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-  background: linear-gradient(145deg, #ffecd2 0%, #fcb69f 100%);
+  box-shadow: 0 15px 35px rgba(30,144,255,0.4);
+  background: #1E90FF;
+  border-color: #4FC3F7;
 }
 
 .game-icon {
   font-size: 4rem;
   margin-bottom: 15px;
+  color: #4FC3F7;
 }
 
 .game-card h3 {
   margin: 10px 0;
-  color: #333;
+  color: #FFFFFF;
+  font-weight: 600;
 }
 
 .game-card p {
-  color: #666;
+  color: #B0C9E8;
   margin: 0;
 }
 
@@ -123,8 +131,12 @@
   border: none;
   font-size: 1.1rem;
   cursor: pointer;
-  color: #61dafb;
+  color: #4FC3F7;
   margin-bottom: 20px;
+}
+
+.back-btn:hover {
+  color: #1E90FF;
 }
 
 .name-input-section, .join-section {
@@ -135,9 +147,17 @@
   width: 100%;
   padding: 12px;
   font-size: 1.1rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #4FC3F7;
   border-radius: 8px;
   margin-bottom: 15px;
+  background: #102F4C;
+  color: #FFFFFF;
+}
+
+.name-input:focus, .code-input:focus {
+  outline: none;
+  border-color: #1E90FF;
+  box-shadow: 0 0 10px rgba(30,144,255,0.3);
 }
 
 .create-btn, .join-btn {
@@ -151,40 +171,41 @@
 }
 
 .create-btn {
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+  background: #1E90FF;
   color: white;
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
 }
 
 .create-btn:hover {
-  background: linear-gradient(45deg, #45a049, #4CAF50);
+  background: #4FC3F7;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+  box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
 }
 
 .join-btn {
-  background: linear-gradient(45deg, #2196F3, #1976D2);
+  background: #4FC3F7;
   color: white;
-  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+  box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
 }
 
 .join-btn:hover {
-  background: linear-gradient(45deg, #1976D2, #2196F3);
+  background: #1E90FF;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+  box-shadow: 0 6px 20px rgba(79, 195, 247, 0.4);
 }
 
 .divider {
   text-align: center;
   margin: 30px 0;
-  color: #999;
+  color: #B0C9E8;
   font-weight: bold;
 }
 
 .error-message {
-  color: red;
+  color: #FF4C4C;
   text-align: center;
   margin-top: 15px;
+  font-weight: bold;
 }
 
 /* Waiting Screen */
@@ -218,11 +239,12 @@
 }
 
 .player-item {
-  background: white;
+  background: #102F4C;
   padding: 15px;
   margin: 10px 0;
   border-radius: 8px;
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid #32CD32;
+  color: #FFFFFF;
 }
 
 .waiting-indicator {
@@ -289,16 +311,19 @@
 
 .player {
   padding: 15px 25px;
-  background: #f0f0f0;
+  background: #102F4C;
   border-radius: 25px;
   font-weight: bold;
   transition: all 0.3s ease;
+  color: #FFFFFF;
+  border: 2px solid #4FC3F7;
 }
 
 .player.active {
-  background: #4CAF50;
+  background: #1E90FF;
   color: white;
   transform: scale(1.1);
+  border-color: #4FC3F7;
 }
 
 .vs {
@@ -311,7 +336,7 @@
   font-size: 1.2rem;
   margin: 20px 0;
   font-weight: bold;
-  color: #2196F3;
+  color: #4FC3F7;
 }
 
 .board {
@@ -329,23 +354,25 @@
   font-weight: bold;
   text-align: center;
   cursor: pointer;
-  background: white;
-  border: 3px solid #e0e0e0;
+  background: #102F4C;
+  border: 3px solid #4FC3F7;
   border-radius: 15px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #FFFFFF;
 }
 
 .cell.clickable:hover {
-  border-color: #2196F3;
-  background: #f0f8ff;
+  border-color: #1E90FF;
+  background: #1E90FF;
   transform: scale(1.05);
+  color: #FFFFFF;
 }
 
 .cell.filled {
-  background: #f8f9fa;
+  background: #0A2A43;
 }
 
 .cell:disabled {
@@ -358,20 +385,21 @@
 
 /* X and O styling */
 .x-cell {
-  color: #e74c3c;
-  background: linear-gradient(145deg, #fff, #f8f9fa);
+  color: #FF4C4C;
+  background: #0A2A43;
 }
 
 .o-cell {
-  color: #3498db;
-  background: linear-gradient(145deg, #fff, #f8f9fa);
+  color: #4FC3F7;
+  background: #0A2A43;
 }
 
 /* Winning cells highlight */
 .winning-cell {
-  background: linear-gradient(145deg, #f1c40f, #f39c12) !important;
+  background: #32CD32 !important;
   color: white !important;
   animation: pulse 1s infinite;
+  border-color: #32CD32 !important;
 }
 
 @keyframes pulse {
@@ -389,18 +417,18 @@
 .winner-message {
   font-size: 2rem;
   font-weight: bold;
-  color: #f1c40f;
+  color: #32CD32;
   margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
   animation: bounce 1s ease-in-out;
 }
 
 .tie-message {
   font-size: 2rem;
   font-weight: bold;
-  color: #95a5a6;
+  color: #B0C9E8;
   margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
 @keyframes bounce {
@@ -410,7 +438,7 @@
 }
 
 .play-again-btn {
-  background: linear-gradient(45deg, #e67e22, #d35400);
+  background: #1E90FF;
   color: white;
   border: none;
   padding: 15px 30px;
@@ -418,21 +446,21 @@
   border-radius: 25px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+  box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
 }
 
 .play-again-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(230, 126, 34, 0.4);
-  background: linear-gradient(45deg, #d35400, #e67e22);
+  box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
+  background: #4FC3F7;
 }
 
 /* Enhanced waiting screen */
 .game-code-display {
-  background: rgba(255, 255, 255, 0.3);
+  background: #102F4C;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  border: 2px solid #4FC3F7;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 
 .code-container {
@@ -445,18 +473,19 @@
 .code {
   font-size: 3rem;
   font-weight: bold;
-  color: #2c3e50;
+  color: #FFFFFF;
   letter-spacing: 5px;
   margin: 15px 0;
   font-family: monospace;
-  background: white;
+  background: #0A2A43;
   padding: 15px 25px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  border: 2px solid #1E90FF;
 }
 
 .copy-btn {
-  background: linear-gradient(45deg, #3498db, #2980b9);
+  background: #4FC3F7;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -464,22 +493,23 @@
   cursor: pointer;
   font-size: 1.2rem;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .copy-btn:hover {
+  background: #1E90FF;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(30,144,255,0.4);
 }
 
 .copy-notification {
-  background: linear-gradient(45deg, #27ae60, #2ecc71);
+  background: #32CD32;
   color: white;
   padding: 10px 20px;
   border-radius: 25px;
   margin-top: 15px;
   font-weight: bold;
-  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+  box-shadow: 0 4px 15px rgba(50, 205, 50, 0.3);
   animation: slideInOut 2s ease-in-out;
 }
 
@@ -512,29 +542,29 @@
   text-align: center;
   font-size: 1.5rem;
   font-weight: bold;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #4FC3F7;
   border-radius: 8px;
-  background: white;
-  color: #2c3e50;
+  background: #102F4C;
+  color: #FFFFFF;
   transition: all 0.3s ease;
 }
 
 .otp-input:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+  border-color: #1E90FF;
+  box-shadow: 0 0 10px rgba(30, 144, 255, 0.3);
   transform: scale(1.05);
 }
 
 /* Chat Styles */
 .chat-container {
-  background: rgba(255, 255, 255, 0.3);
+  background: #102F4C;
   backdrop-filter: blur(10px);
   border-radius: 15px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 2px solid #4FC3F7;
   height: fit-content;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 
 .chat-messages {
@@ -542,9 +572,9 @@
   overflow-y: auto;
   margin-bottom: 15px;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.2);
+  background: #0A2A43;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid #4FC3F7;
 }
 
 .chat-message {
@@ -555,17 +585,17 @@
 }
 
 .own-message {
-  background: linear-gradient(45deg, #3498db, #2980b9);
+  background: #1E90FF;
   color: white;
   margin-left: auto;
   text-align: right;
 }
 
 .other-message {
-  background: rgba(255, 255, 255, 0.6);
-  color: #2c3e50;
+  background: #102F4C;
+  color: #FFFFFF;
   margin-right: auto;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid #4FC3F7;
 }
 
 .message-sender {
@@ -585,10 +615,16 @@
 .chat-input {
   flex: 1;
   padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid #4FC3F7;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.8);
-  color: #2c3e50;
+  background: #0A2A43;
+  color: #FFFFFF;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: #1E90FF;
+  box-shadow: 0 0 10px rgba(30, 144, 255, 0.3);
 }
 
 .chat-input:focus {
@@ -597,7 +633,7 @@
 }
 
 .send-btn {
-  background: linear-gradient(45deg, #27ae60, #2ecc71);
+  background: #4FC3F7;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -607,8 +643,9 @@
 }
 
 .send-btn:hover {
+  background: #1E90FF;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+  box-shadow: 0 4px 10px rgba(30, 144, 255, 0.3);
 }
 
 @keyframes App-logo-spin {
