@@ -30,7 +30,7 @@ function App() {
 
   // Connect to backend
   const connectSocket = (gameCode, playerName) => {
-    const s = io({ path: '/api/socket.io' });
+    const s = io('https://khelona-backend.vercel.app', { path: '/socket.io' });
     setSocket(s);
     s.emit('join_game', { code: gameCode, player: playerName });
     s.on('join_error', data => setMessage(data.error));
@@ -67,7 +67,7 @@ function App() {
   const handleCreateGame = async () => {
     if (!player) return setMessage('Enter your name');
     try {
-      const res = await fetch('/api/create_game', { 
+      const res = await fetch('https://khelona-backend.vercel.app/create_game', { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

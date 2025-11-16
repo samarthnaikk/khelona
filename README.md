@@ -7,25 +7,24 @@ A 2-player Tic Tac Toe web game. Players can create a game, share a code, and pl
 ## Features
 - Create and join games with a code
 - Real-time gameplay using Flask-SocketIO
-- React frontend (setup instructions coming soon)
+- React frontend
+- Backend hosted on Vercel at https://khelona-backend.vercel.app
 
-## Backend Setup
-1. Create a virtual environment and activate it:
+## Frontend Setup
+1. Navigate to the client directory:
    ```sh
-   python3 -m venv venv
-   source venv/bin/activate
+   cd client
    ```
 2. Install dependencies:
    ```sh
-   pip install flask flask-socketio eventlet
+   npm install
    ```
-3. Run the server:
+3. Start the development server:
    ```sh
-   python server.py
+   npm start
    ```
 
-## Frontend Setup
-(Instructions will be added after frontend scaffolding)
+The frontend will connect to the hosted backend automatically.
 
 ## License
 See [LICENSE](LICENSE).

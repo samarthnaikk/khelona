@@ -29,7 +29,7 @@ function App() {
   const pollGameState = useCallback(async () => {
     if (!code) return;
     try {
-      const res = await fetch(`/api/game_state/${code}`);
+      const res = await fetch(`https://khelona-backend.vercel.app/game_state/${code}`);
       if (res.ok) {
         const data = await res.json();
         if (data.state) {
@@ -48,7 +48,7 @@ function App() {
       }
       
       // Also poll for chat messages
-      const messagesRes = await fetch(`/api/get_messages/${code}`);
+      const messagesRes = await fetch(`https://khelona-backend.vercel.app/get_messages/${code}`);
       if (messagesRes.ok) {
         const messagesData = await messagesRes.json();
         if (messagesData.messages) {
@@ -79,7 +79,7 @@ function App() {
   const handleCreateGame = async () => {
     if (!player) return setMessage('Enter your name');
     try {
-      const res = await fetch('/api/create_game', { 
+      const res = await fetch('https://khelona-backend.vercel.app/create_game', { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ function App() {
 
   const joinGameRequest = async (gameCode, playerName) => {
     try {
-      const res = await fetch('/api/join_game', {
+      const res = await fetch('https://khelona-backend.vercel.app/join_game', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,7 +139,7 @@ function App() {
   const handleMove = async (idx) => {
     if (board[idx] || turn !== myIndex || gameOver) return;
     try {
-      const res = await fetch('/api/make_move', {
+      const res = await fetch('https://khelona-backend.vercel.app/make_move', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ function App() {
   const sendMessage = async () => {
     if (newMessage.trim()) {
       try {
-        const res = await fetch('/api/send_message', {
+        const res = await fetch('https://khelona-backend.vercel.app/send_message', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
