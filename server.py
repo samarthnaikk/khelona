@@ -3,42 +3,28 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
 import random
 import string
+from games import create_game, handle_game_move
 
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-games = {}  # game_code: { 'players': [], 'board': [...], 'turn': 0, 'winner': None, 'game_over': False }
-
-
-def check_winner(board):
-    # Check rows, columns, and diagonals
-    lines = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
-        [0, 4, 8], [2, 4, 6]              # diagonals
-    ]
-    
-    for line in lines:
-        if board[line[0]] and board[line[0]] == board[line[1]] == board[line[2]]:
-            return board[line[0]], line
-    
-    # Check for tie
-    if all(cell != '' for cell in board):
-        return 'tie', []
-    
-    return None, []
+games = {}  # game_code: { 'type': 'tic-tac-toe', 'state': {...} }
 
 def generate_code(length=6):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
 @app.route('/create_game', methods=['POST'])
-def create_game():
+def create_game_endpoint():
     try:
         code = generate_code()
         while code in games:
             code = generate_code()
-        games[code] = {'players': [], 'board': ['']*9, 'turn': 0, 'winner': None, 'game_over': False, 'winning_line': []}
+        
+        # Default to tic-tac-toe for now, can be extended to accept game type
+        game_state = create_game('tic-tac-toe')
+        games[code] = {'type': 'tic-tac-toe', 'state': game_state}
+        
         print(f"Created game with code: {code}")
         return jsonify({'code': code})
     except Exception as e:
@@ -49,18 +35,21 @@ def create_game():
 def on_join_game(data):
     code = data.get('code')
     player = data.get('player')
-    if code not in games or len(games[code]['players']) >= 2:
+    if code not in games or len(games[code]['state']['players']) >= 2:
         emit('join_error', {'error': 'Invalid or full game code'})
         return
-    games[code]['players'].append(player)
+    
+    games[code]['state']['players'].append(player)
     join_room(code)
-    emit('player_joined', {'players': games[code]['players']}, room=code)
-    if len(games[code]['players']) == 2:
+    emit('player_joined', {'players': games[code]['state']['players']}, room=code)
+    
+    if len(games[code]['state']['players']) == 2:
+        game_state = games[code]['state']
         emit('start_game', {
-            'board': games[code]['board'], 
-            'turn': games[code]['turn'],
-            'game_over': games[code]['game_over'],
-            'winner': games[code]['winner']
+            'board': game_state['board'], 
+            'turn': game_state['turn'],
+            'game_over': game_state['game_over'],
+            'winner': game_state['winner']
         }, room=code)
 
 @socketio.on('make_move')
@@ -68,28 +57,35 @@ def on_make_move(data):
     code = data.get('code')
     idx = data.get('index')
     player = data.get('player')
-    if code not in games or idx is None or player not in games[code]['players']:
+    
+    if code not in games or idx is None or player not in games[code]['state']['players']:
         return
-    board = games[code]['board']
-    turn = games[code]['turn']
-    if board[idx] == '' and games[code]['players'][turn] == player and not games[code]['game_over']:
-        board[idx] = 'X' if turn == 0 else 'O'
-        
-        # Check for winner
-        winner, winning_line = check_winner(board)
-        if winner:
-            games[code]['game_over'] = True
-            games[code]['winner'] = winner
-            games[code]['winning_line'] = winning_line
-        else:
-            games[code]['turn'] = 1 - turn
-        
+    
+    game_info = games[code]
+    game_state = game_info['state']
+    game_type = game_info['type']
+    
+    # Get player index
+    try:
+        player_index = game_state['players'].index(player)
+    except ValueError:
+        return
+    
+    # Check if it's the player's turn
+    if game_state['turn'] != player_index or game_state['game_over']:
+        return
+    
+    # Handle the move using the game-specific handler
+    success, updated_state = handle_game_move(game_type, game_state, player_index, idx)
+    
+    if success:
+        games[code]['state'] = updated_state
         emit('update_board', {
-            'board': board, 
-            'turn': games[code]['turn'],
-            'game_over': games[code]['game_over'],
-            'winner': games[code]['winner'],
-            'winning_line': games[code]['winning_line']
+            'board': updated_state['board'], 
+            'turn': updated_state['turn'],
+            'game_over': updated_state['game_over'],
+            'winner': updated_state['winner'],
+            'winning_line': updated_state['winning_line']
         }, room=code)
 
 @socketio.on('chat_message')
@@ -97,7 +93,7 @@ def on_chat_message(data):
     code = data.get('code')
     player = data.get('player')
     message = data.get('message')
-    if code in games and player in games[code]['players']:
+    if code in games and player in games[code]['state']['players']:
         emit('chat_message', {
             'player': player,
             'message': message,

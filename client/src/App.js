@@ -2,6 +2,11 @@
 import React, { useState } from 'react';
 import './App.css';
 import io from 'socket.io-client';
+import GameCard from './components/GameCard';
+import TicTacToeBoard from './components/TicTacToeBoard';
+import GameResult from './components/GameResult';
+import Chat from './components/Chat';
+import CodeInput from './components/CodeInput';
 
 function App() {
   const [step, setStep] = useState('home'); // home, enterName, waiting, joinGame, game
@@ -162,14 +167,7 @@ function App() {
         <div className="home-screen">
           <h2>Choose a Game</h2>
           <div className="games-grid">
-            <div className="game-card" onClick={() => handleGameSelect('tic-tac-toe')}>
-              <div className="game-icon">
-                <span style={{color: '#FF4C4C'}}>X</span>
-                <span style={{color: '#4FC3F7'}}>O</span>
-              </div>
-              <h3>Tic Tac Toe</h3>
-              <p>Classic 3x3 grid game</p>
-            </div>
+            <GameCard gameType="tic-tac-toe" onClick={handleGameSelect} />
             {/* More games can be added here */}
           </div>
         </div>
@@ -190,21 +188,12 @@ function App() {
           </div>
           <div className="divider">OR</div>
           <div className="join-section">
-            <div className="otp-inputs">
-              {codeDigits.map((digit, index) => (
-                <input
-                  key={index}
-                  id={`code-input-${index}`}
-                  type="text"
-                  value={digit}
-                  onChange={e => handleCodeInput(index, e.target.value)}
-                  onKeyDown={e => handleKeyDown(index, e)}
-                  onPaste={e => handlePaste(index, e)}
-                  className="otp-input"
-                  maxLength="1"
-                />
-              ))}
-            </div>
+            <CodeInput 
+              codeDigits={codeDigits}
+              onCodeInput={handleCodeInput}
+              onPaste={handlePaste}
+              onKeyDown={handleKeyDown}
+            />
             <button onClick={handleJoinGame} className="join-btn">Join Game</button>
           </div>
           {message && <div className="error-message">{message}</div>}
@@ -269,63 +258,31 @@ function App() {
               </div>
             )}
             
-            {gameOver && (
-              <div className="game-result">
-                {winner === 'tie' ? (
-                <div className="tie-message">It's a Tie!</div>
-              ) : (
-                <div className="winner-message">
-                  {winner === 'X' ? players[0] : players[1]} Wins!
-                </div>
-              )}
-                <button className="play-again-btn" onClick={goBack}>
-                  Play Again
-                </button>
-              </div>
-            )}
+            <GameResult 
+              gameOver={gameOver}
+              winner={winner}
+              players={players}
+              onPlayAgain={goBack}
+            />
             
-            <div className="board">
-              {board.map((cell, idx) => (
-                <button 
-                  key={idx} 
-                  className={`cell ${cell ? 'filled' : ''} ${turn === myIndex && !cell && !gameOver ? 'clickable' : ''} ${winningLine.includes(idx) ? 'winning-cell' : ''} ${cell === 'X' ? 'x-cell' : cell === 'O' ? 'o-cell' : ''}`} 
-                  onClick={() => handleMove(idx)}
-                  disabled={!!cell || turn !== myIndex || gameOver}
-                >
-                  {cell}
-                </button>
-              ))}
-            </div>
+            <TicTacToeBoard 
+              board={board}
+              onMove={handleMove}
+              turn={turn}
+              myIndex={myIndex}
+              gameOver={gameOver}
+              winningLine={winningLine}
+            />
           </div>
           
           <div className="game-side">
-            <div className="chat-container">
-              <h3 style={{margin: '0 0 15px 0', color: '#FFFFFF'}}>Chat</h3>
-              <div className="chat-messages">
-                {chatMessages.map((msg, index) => (
-                  <div key={index} className={`chat-message ${msg.player === player ? 'own-message' : 'other-message'}`}>
-                    <span className="message-sender">{msg.player}:</span>
-                    <span className="message-text">{msg.message}</span>
-                  </div>
-                ))}
-                {chatMessages.length === 0 && (
-                  <div style={{textAlign: 'center', color: '#666', fontStyle: 'italic', margin: '50% 0'}}>
-                    No messages yet. Start chatting!
-                  </div>
-                )}
-              </div>
-              <div className="chat-input-container">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={e => setNewMessage(e.target.value)}
-                  onKeyPress={e => e.key === 'Enter' && sendMessage()}
-                  placeholder="Type a message..."
-                  className="chat-input"
-                />
-                <button onClick={sendMessage} className="send-btn">Send</button>
-              </div>
-            </div>
+            <Chat 
+              messages={chatMessages}
+              newMessage={newMessage}
+              onMessageChange={e => setNewMessage(e.target.value)}
+              onSendMessage={sendMessage}
+              player={player}
+            />
           </div>
         </div>
       )}
