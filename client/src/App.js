@@ -15,6 +15,13 @@ function App() {
   const [turn, setTurn] = useState(0);
   const [myIndex, setMyIndex] = useState(null);
   const [message, setMessage] = useState('');
+  const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState(null);
+  const [winningLine, setWinningLine] = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [codeDigits, setCodeDigits] = useState(['', '', '', '', '', '']);
+  const [showCopyNotification, setShowCopyNotification] = useState(false);
 
   // Connect to backend
   const connectSocket = (gameCode, playerName) => {
@@ -29,12 +36,20 @@ function App() {
     s.on('start_game', data => {
       setBoard(data.board);
       setTurn(data.turn);
+      setGameOver(data.game_over || false);
+      setWinner(data.winner || null);
       setStep('game');
       setMessage('');
     });
     s.on('update_board', data => {
       setBoard([...data.board]);
       setTurn(data.turn);
+      setGameOver(data.game_over || false);
+      setWinner(data.winner || null);
+      setWinningLine(data.winning_line || []);
+    });
+    s.on('chat_message', data => {
+      setChatMessages(prev => [...prev, data]);
     });
     return s;
   };
@@ -89,6 +104,56 @@ function App() {
     socket.emit('make_move', { code, index: idx, player });
   };
 
+  const copyCode = () => {
+    navigator.clipboard.writeText(code);
+    setShowCopyNotification(true);
+    setTimeout(() => setShowCopyNotification(false), 2000);
+  };
+
+  const sendMessage = () => {
+    if (newMessage.trim() && socket) {
+      socket.emit('chat_message', { code, player, message: newMessage });
+      setNewMessage('');
+    }
+  };
+
+  const handleCodeInput = (index, value) => {
+    if (value.length <= 1) {
+      const newDigits = [...codeDigits];
+      newDigits[index] = value.toUpperCase();
+      setCodeDigits(newDigits);
+      setInputCode(newDigits.join(''));
+      
+      // Auto-focus next input
+      if (value && index < 5) {
+        document.getElementById(`code-input-${index + 1}`)?.focus();
+      }
+    }
+  };
+
+  const handlePaste = (index, e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').toUpperCase().slice(0, 6);
+    const newDigits = [...codeDigits];
+    
+    for (let i = 0; i < pastedData.length && (index + i) < 6; i++) {
+      newDigits[index + i] = pastedData[i];
+    }
+    
+    setCodeDigits(newDigits);
+    setInputCode(newDigits.join(''));
+    
+    // Focus on the next empty input or the last one
+    const nextIndex = Math.min(index + pastedData.length, 5);
+    document.getElementById(`code-input-${nextIndex}`)?.focus();
+  };
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !codeDigits[index] && index > 0) {
+      document.getElementById(`code-input-${index - 1}`)?.focus();
+    }
+  };
+
   return (
     <div className="App">
       <h1>🎮 Khelona - 2 Player Games</h1>
@@ -122,12 +187,21 @@ function App() {
           </div>
           <div className="divider">OR</div>
           <div className="join-section">
-            <input 
-              placeholder="Enter game code" 
-              value={inputCode} 
-              onChange={e => setInputCode(e.target.value.toUpperCase())}
-              className="code-input"
-            />
+            <div className="otp-inputs">
+              {codeDigits.map((digit, index) => (
+                <input
+                  key={index}
+                  id={`code-input-${index}`}
+                  type="text"
+                  value={digit}
+                  onChange={e => handleCodeInput(index, e.target.value)}
+                  onKeyDown={e => handleKeyDown(index, e)}
+                  onPaste={e => handlePaste(index, e)}
+                  className="otp-input"
+                  maxLength="1"
+                />
+              ))}
+            </div>
             <button onClick={handleJoinGame} className="join-btn">Join Game</button>
           </div>
           {message && <div className="error-message">{message}</div>}
@@ -139,7 +213,17 @@ function App() {
           <h2>⭕ Tic Tac Toe</h2>
           <div className="game-code-display">
             <h3>Game Code</h3>
-            <div className="code">{code}</div>
+            <div className="code-container">
+              <div className="code">{code}</div>
+              <button className="copy-btn" onClick={copyCode}>
+                Copy Code
+              </button>
+            </div>
+            {showCopyNotification && (
+              <div className="copy-notification">
+                ✅ Code copied to clipboard!
+              </div>
+            )}
             <p>Share this code with your friend to join!</p>
           </div>
           <div className="players-list">
@@ -175,20 +259,60 @@ function App() {
               {players[1]} (O)
             </div>
           </div>
-          <div className="current-turn">
-            {turn === myIndex ? "Your turn!" : `${players[turn]}'s turn`}
-          </div>
+          {!gameOver && (
+            <div className="current-turn">
+              {turn === myIndex ? "Your turn!" : `${players[turn]}'s turn`}
+            </div>
+          )}
+          
+          {gameOver && (
+            <div className="game-result">
+              {winner === 'tie' ? (
+                <div className="tie-message">🤝 It's a Tie!</div>
+              ) : (
+                <div className="winner-message">
+                  🎉 {winner === 'X' ? players[0] : players[1]} Wins!
+                </div>
+              )}
+              <button className="play-again-btn" onClick={goBack}>
+                Play Again
+              </button>
+            </div>
+          )}
+          
           <div className="board">
             {board.map((cell, idx) => (
               <button 
                 key={idx} 
-                className={`cell ${cell ? 'filled' : ''} ${turn === myIndex && !cell ? 'clickable' : ''}`} 
+                className={`cell ${cell ? 'filled' : ''} ${turn === myIndex && !cell && !gameOver ? 'clickable' : ''} ${winningLine.includes(idx) ? 'winning-cell' : ''} ${cell === 'X' ? 'x-cell' : cell === 'O' ? 'o-cell' : ''}`} 
                 onClick={() => handleMove(idx)}
-                disabled={!!cell || turn !== myIndex}
+                disabled={!!cell || turn !== myIndex || gameOver}
               >
                 {cell}
               </button>
             ))}
+          </div>
+          
+          <div className="chat-container">
+            <div className="chat-messages">
+              {chatMessages.map((msg, index) => (
+                <div key={index} className={`chat-message ${msg.player === player ? 'own-message' : 'other-message'}`}>
+                  <span className="message-sender">{msg.player}:</span>
+                  <span className="message-text">{msg.message}</span>
+                </div>
+              ))}
+            </div>
+            <div className="chat-input-container">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={e => setNewMessage(e.target.value)}
+                onKeyPress={e => e.key === 'Enter' && sendMessage()}
+                placeholder="Type a message..."
+                className="chat-input"
+              />
+              <button onClick={sendMessage} className="send-btn">Send</button>
+            </div>
           </div>
         </div>
       )}
