@@ -243,75 +243,85 @@ function App() {
 
       {step === 'game' && (
         <div className="game-screen">
-          <div className="game-header">
-            <h2>⭕ Tic Tac Toe</h2>
-            <div className="game-info">
-              <span>Code: <strong>{code}</strong></span>
-              <span>You are: <strong>{myIndex === 0 ? 'X' : 'O'}</strong></span>
+          <div className="game-main">
+            <div className="game-header">
+              <h2>⭕ Tic Tac Toe</h2>
+              <div className="game-info">
+                <span>Code: <strong>{code}</strong></span>
+                <span>You are: <strong>{myIndex === 0 ? 'X' : 'O'}</strong></span>
+              </div>
             </div>
-          </div>
-          <div className="players-display">
-            <div className={`player ${turn === 0 ? 'active' : ''}`}>
-              {players[0]} (X)
+            <div className="players-display">
+              <div className={`player ${turn === 0 ? 'active' : ''}`}>
+                {players[0]} (X)
+              </div>
+              <div className="vs">VS</div>
+              <div className={`player ${turn === 1 ? 'active' : ''}`}>
+                {players[1]} (O)
+              </div>
             </div>
-            <div className="vs">VS</div>
-            <div className={`player ${turn === 1 ? 'active' : ''}`}>
-              {players[1]} (O)
-            </div>
-          </div>
-          {!gameOver && (
-            <div className="current-turn">
-              {turn === myIndex ? "Your turn!" : `${players[turn]}'s turn`}
-            </div>
-          )}
-          
-          {gameOver && (
-            <div className="game-result">
-              {winner === 'tie' ? (
-                <div className="tie-message">🤝 It's a Tie!</div>
-              ) : (
-                <div className="winner-message">
-                  🎉 {winner === 'X' ? players[0] : players[1]} Wins!
-                </div>
-              )}
-              <button className="play-again-btn" onClick={goBack}>
-                Play Again
-              </button>
-            </div>
-          )}
-          
-          <div className="board">
-            {board.map((cell, idx) => (
-              <button 
-                key={idx} 
-                className={`cell ${cell ? 'filled' : ''} ${turn === myIndex && !cell && !gameOver ? 'clickable' : ''} ${winningLine.includes(idx) ? 'winning-cell' : ''} ${cell === 'X' ? 'x-cell' : cell === 'O' ? 'o-cell' : ''}`} 
-                onClick={() => handleMove(idx)}
-                disabled={!!cell || turn !== myIndex || gameOver}
-              >
-                {cell}
-              </button>
-            ))}
-          </div>
-          
-          <div className="chat-container">
-            <div className="chat-messages">
-              {chatMessages.map((msg, index) => (
-                <div key={index} className={`chat-message ${msg.player === player ? 'own-message' : 'other-message'}`}>
-                  <span className="message-sender">{msg.player}:</span>
-                  <span className="message-text">{msg.message}</span>
-                </div>
+            {!gameOver && (
+              <div className="current-turn">
+                {turn === myIndex ? "Your turn!" : `${players[turn]}'s turn`}
+              </div>
+            )}
+            
+            {gameOver && (
+              <div className="game-result">
+                {winner === 'tie' ? (
+                  <div className="tie-message">🤝 It's a Tie!</div>
+                ) : (
+                  <div className="winner-message">
+                    🎉 {winner === 'X' ? players[0] : players[1]} Wins!
+                  </div>
+                )}
+                <button className="play-again-btn" onClick={goBack}>
+                  Play Again
+                </button>
+              </div>
+            )}
+            
+            <div className="board">
+              {board.map((cell, idx) => (
+                <button 
+                  key={idx} 
+                  className={`cell ${cell ? 'filled' : ''} ${turn === myIndex && !cell && !gameOver ? 'clickable' : ''} ${winningLine.includes(idx) ? 'winning-cell' : ''} ${cell === 'X' ? 'x-cell' : cell === 'O' ? 'o-cell' : ''}`} 
+                  onClick={() => handleMove(idx)}
+                  disabled={!!cell || turn !== myIndex || gameOver}
+                >
+                  {cell}
+                </button>
               ))}
             </div>
-            <div className="chat-input-container">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={e => setNewMessage(e.target.value)}
-                onKeyPress={e => e.key === 'Enter' && sendMessage()}
-                placeholder="Type a message..."
-                className="chat-input"
-              />
-              <button onClick={sendMessage} className="send-btn">Send</button>
+          </div>
+          
+          <div className="game-side">
+            <div className="chat-container">
+              <h3 style={{margin: '0 0 15px 0', color: '#2c3e50'}}>💬 Chat</h3>
+              <div className="chat-messages">
+                {chatMessages.map((msg, index) => (
+                  <div key={index} className={`chat-message ${msg.player === player ? 'own-message' : 'other-message'}`}>
+                    <span className="message-sender">{msg.player}:</span>
+                    <span className="message-text">{msg.message}</span>
+                  </div>
+                ))}
+                {chatMessages.length === 0 && (
+                  <div style={{textAlign: 'center', color: '#666', fontStyle: 'italic', margin: '50% 0'}}>
+                    No messages yet. Start chatting!
+                  </div>
+                )}
+              </div>
+              <div className="chat-input-container">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={e => setNewMessage(e.target.value)}
+                  onKeyPress={e => e.key === 'Enter' && sendMessage()}
+                  placeholder="Type a message..."
+                  className="chat-input"
+                />
+                <button onClick={sendMessage} className="send-btn">Send</button>
+              </div>
             </div>
           </div>
         </div>
