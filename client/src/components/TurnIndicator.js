@@ -6,7 +6,7 @@ const TurnIndicator = ({ turn, myIndex, players, gameOver, throwsLeft }) => {
   return (
     <div className="dart-turn-indicator">
       <div className="turn-text">
-        {turn === myIndex ? "Your turn!" : `${players[turn]}'s turn`}
+        {turn === myIndex ? "Your turn!" : `${players[turn] || 'Player'}'s turn`}
       </div>
       {throwsLeft !== undefined && (
         <div className="throws-left">
