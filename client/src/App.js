@@ -36,7 +36,7 @@ function App() {
   const [dartThrowsLeft, setDartThrowsLeft] = useState(3);
 
   // Helper function to create a hash of game state for comparison
-  const createGameStateHash = (state) => {
+  const createGameStateHash = useCallback((state) => {
     if (selectedGame === 'dart') {
       return JSON.stringify({
         players: state.players,
@@ -55,7 +55,7 @@ function App() {
       winner: state.winner,
       winning_line: state.winning_line
     });
-  };
+  }, [selectedGame]);
 
   // Optimized polling function to check game state
   const pollGameState = useCallback(async () => {
@@ -121,7 +121,7 @@ function App() {
     } catch (error) {
       console.error('Error polling game state:', error);
     }
-  }, [code, step, lastGameStateHash, pollInterval, consecutiveNoChanges]);
+  }, [code, step, lastGameStateHash, pollInterval, consecutiveNoChanges, selectedGame, createGameStateHash]);
 
   // Adaptive polling with dynamic intervals
   useEffect(() => {
