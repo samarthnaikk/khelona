@@ -3,6 +3,9 @@ import './App.css';
 import GameCard from './components/GameCard';
 import TicTacToeBoard from './components/TicTacToeBoard';
 import GameResult from './components/GameResult';
+import DartBoard from './components/DartBoard';
+import ScoreDisplay from './components/ScoreDisplay';
+import TurnIndicator from './components/TurnIndicator';
 // import Chat from './components/Chat';
 import CodeInput from './components/CodeInput';
 
@@ -27,9 +30,23 @@ function App() {
   const [lastGameStateHash, setLastGameStateHash] = useState('');
   const [pollInterval, setPollInterval] = useState(1000);
   const [consecutiveNoChanges, setConsecutiveNoChanges] = useState(0);
+  
+  // Dart game state
+  const [dartScores, setDartScores] = useState([0, 0]);
+  const [dartThrowsLeft, setDartThrowsLeft] = useState(3);
 
   // Helper function to create a hash of game state for comparison
-  const createGameStateHash = (state) => {
+  const createGameStateHash = useCallback((state) => {
+    if (selectedGame === 'dart') {
+      return JSON.stringify({
+        players: state.players,
+        scores: state.scores,
+        turn: state.turn,
+        game_over: state.game_over,
+        winner: state.winner,
+        throws_left: state.throws_left
+      });
+    }
     return JSON.stringify({
       players: state.players,
       board: state.board,
@@ -38,7 +55,7 @@ function App() {
       winner: state.winner,
       winning_line: state.winning_line
     });
-  };
+  }, [selectedGame]);
 
   // Optimized polling function to check game state
   const pollGameState = useCallback(async () => {
@@ -54,11 +71,19 @@ function App() {
           // Only update state and fetch messages if game state actually changed
           if (currentHash !== lastGameStateHash) {
             setPlayers(state.players);
-            setBoard(state.board);
+            
+            // Update game-specific state
+            if (selectedGame === 'dart') {
+              setDartScores(state.scores || [0, 0]);
+              setDartThrowsLeft(state.throws_left || 3);
+            } else {
+              setBoard(state.board);
+              setWinningLine(state.winning_line || []);
+            }
+            
             setTurn(state.turn);
             setGameOver(state.game_over);
             setWinner(state.winner);
-            setWinningLine(state.winning_line || []);
             setLastGameStateHash(currentHash);
             setConsecutiveNoChanges(0);
             
@@ -96,7 +121,7 @@ function App() {
     } catch (error) {
       console.error('Error polling game state:', error);
     }
-  }, [code, step, lastGameStateHash, pollInterval, consecutiveNoChanges]);
+  }, [code, step, lastGameStateHash, pollInterval, consecutiveNoChanges, selectedGame, createGameStateHash]);
 
   // Adaptive polling with dynamic intervals
   useEffect(() => {
@@ -122,7 +147,8 @@ function App() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        body: JSON.stringify({ game_type: selectedGame })
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -194,6 +220,27 @@ function App() {
       }
     } catch (error) {
       console.error('Error making move:', error);
+    }
+  };
+
+  const handleDartThrow = async () => {
+    if (turn !== myIndex || gameOver) return;
+    try {
+      const res = await fetch('https://khelona-backend.vercel.app/throw_dart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code, player })
+      });
+      if (res.ok) {
+        // Force immediate poll after throwing dart
+        setPollInterval(1000);
+        setConsecutiveNoChanges(0);
+        pollGameState();
+      }
+    } catch (error) {
+      console.error('Error throwing dart:', error);
     }
   };
 
@@ -298,6 +345,7 @@ function App() {
           <h2>Choose a Game</h2>
           <div className="games-grid">
             <GameCard gameType="tic-tac-toe" onClick={handleGameSelect} />
+            <GameCard gameType="dart" onClick={handleGameSelect} />
           </div>
         </div>
       )}
@@ -305,7 +353,7 @@ function App() {
       {step === 'enterName' && (
         <div className="enter-name-screen">
           <button className="back-btn" onClick={goBack}>← Back</button>
-          <h2>{selectedGame === 'tic-tac-toe' ? 'Tic Tac Toe' : selectedGame}</h2>
+          <h2>{selectedGame === 'tic-tac-toe' ? 'Tic Tac Toe' : selectedGame === 'dart' ? 'Dart' : selectedGame}</h2>
           <div className="name-input-section">
             <input 
               placeholder="Enter your name (max 10 chars)" 
@@ -332,7 +380,7 @@ function App() {
 
       {step === 'waiting' && (
         <div className="waiting-screen">
-          <h2>Tic Tac Toe</h2>
+          <h2>{selectedGame === 'tic-tac-toe' ? 'Tic Tac Toe' : selectedGame === 'dart' ? 'Dart' : selectedGame}</h2>
           <div className="game-code-display">
             <h3>Game Code</h3>
             <div className="code-container">
@@ -363,7 +411,7 @@ function App() {
         </div>
       )}
 
-      {step === 'game' && (
+      {step === 'game' && selectedGame === 'tic-tac-toe' && (
         <div className="game-screen">
           <div className="game-main" style={{maxWidth: '600px', margin: '0 auto'}}>
             <div className="game-header">
@@ -414,6 +462,49 @@ function App() {
               player={player}
             />
           </div> */}
+        </div>
+      )}
+
+      {step === 'game' && selectedGame === 'dart' && (
+        <div className="game-screen">
+          <div className="game-main" style={{maxWidth: '600px', margin: '0 auto'}}>
+            <div className="game-header">
+              <h2>Dart</h2>
+              <div className="game-info">
+                <span>Code: <strong>{code}</strong></span>
+                <span>Player: <strong>{myIndex + 1}</strong></span>
+              </div>
+            </div>
+            
+            <ScoreDisplay 
+              players={players}
+              scores={dartScores}
+              myIndex={myIndex}
+              turn={turn}
+            />
+            
+            <TurnIndicator 
+              turn={turn}
+              myIndex={myIndex}
+              players={players}
+              gameOver={gameOver}
+              throwsLeft={dartThrowsLeft}
+            />
+            
+            <GameResult 
+              gameOver={gameOver}
+              winner={winner}
+              players={players}
+              onPlayAgain={goBack}
+            />
+            
+            <DartBoard 
+              onThrow={handleDartThrow}
+              turn={turn}
+              myIndex={myIndex}
+              gameOver={gameOver}
+            />
+          </div>
         </div>
       )}
     </div>

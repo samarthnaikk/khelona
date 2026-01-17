@@ -11,6 +11,11 @@ const GameCard = ({ gameType, onClick }) => {
       ),
       title: 'Tic Tac Toe',
       description: 'Classic 3x3 grid game'
+    },
+    'dart': {
+      icon: '🎯',
+      title: 'Dart',
+      description: 'Hit the target, score points'
     }
   };
 
